@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # Baza danych PostgreSQL
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env   # <-- Docker będzie zaciągał hasła z tego pliku
+
+  # Twoja aplikacja Django
+  web:
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:

@@ -1,0 +1,24 @@
+{% extends 'snippets/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 text-center">
+        <div class="card shadow border-danger">
+            <div class="card-body">
+                <h2 class="text-danger mb-4">⚠️ Potwierdzenie usunięcia</h2>
+                <p class="lead">
+                    Czy na pewno chcesz trwale usunąć kod o tytule: <br>
+                    <strong>"{{ snippet.title }}"</strong>?
+                </p>
+                <p class="text-muted small">Tej operacji nie można cofnąć.</p>
+                
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <a href="{% url 'szczegoly_kodu' snippet.pk %}" class="btn btn-secondary me-2">Anuluj i wróć</a>
+                    <button type="submit" class="btn btn-danger">Tak, usuń bezpowrotnie</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

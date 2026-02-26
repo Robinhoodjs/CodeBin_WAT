@@ -1,0 +1,9 @@
+# Ignorowane pliki konfiguracyjne
+.env
+
+# Ignorowane foldery bazy danych (jeśli kiedyś utworzysz lokalnie)
+postgres_data/
+
+# Śmieci z Pythona
+__pycache__/
+*.pyc

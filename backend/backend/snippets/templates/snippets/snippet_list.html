@@ -1,0 +1,20 @@
+{% extends 'snippets/base.html' %}
+
+{% block content %}
+    <h1 class="mb-4">Ostatnio dodane rozwiązania</h1>
+
+    <div class="list-group">
+    {% for snippet in lista_snippetow %}
+        <a href="{% url 'szczegoly_kodu' pk=snippet.pk %}" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ snippet.title }}</h5>
+                <small class="text-muted">{{ snippet.created_at|date:"d M Y, H:i" }}</small>
+            </div>
+            <p class="mb-1">Język: <span class="badge bg-primary">{{ snippet.language }}</span></p>
+            <small class="text-muted">Kliknij, aby zobaczyć kod.</small>
+        </a>
+    {% empty %}
+        <div class="alert alert-info">Brak kodów w bazie. Dodaj pierwszy!</div>
+    {% endfor %}
+    </div>
+{% endblock %}

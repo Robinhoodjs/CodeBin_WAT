@@ -1,0 +1,14 @@
+{
+  "parameters": [
+    
+  ],
+  "results": [
+    {
+      "title": "Zadanie programistyczne",
+      "task": "Quisque id hendrerit erat. Nullam imperdiet mauris nunc, vel vestibulum sapien facilisis a. Ut pharetra faucibus vehicula. Ut arcu nisi, varius vel venenatis sed, volutpat sit amet ante. Proin eget nibh sit amet eros fringilla facilisis. Suspendisse potenti. Suspendisse est ligula, commodo nec quam vel, bibendum semper quam. Cras bibendum libero dui, et malesuada tortor varius sed.",
+      "unit_tests": "import { render } from '@testing-library/react';\nimport App from './App';\n\ndescribe('Component App', () => {\n  it('should render without crashing', () => {\n    render(<App />);\n  });\n});\n",
+      "solution": "#include <iostream>\n#include <vector>\nusing namespace std;\n\ndouble srednia(vector<double> T, int N) {\n\tdouble suma = 0;\n\tfor (int i = 0; i < N; i++)\n\t{\n\t\tsuma = suma + T[i];\n\t}\n\t\t\n\treturn suma / (double) N;\n}\n\nint main()\n{\n\tint n;\n\tdouble a, suma;\n\tvector<double> T;\n\t\n\tcout << \"Ile liczb: \";\n\tcin >> n;\n\tif (n > 0)\n\t{\n\t\tfor (int i = 0; i < n; i++) {\n\t\t\tcin >> a;\n\t\t\tT.push_back(a);\n\t\t}\n\t}\n\telse\n\t\tcout << \"Niepoprawne dane\";\n\t\n\tcout << \"Srednia arytmetyczna: \" << srednia(T, n);\n\t\n\treturn 0;\n}",
+      "id": 1
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{% extends 'snippets/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-10">
+        <div class="card shadow-sm">
+            
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h4 class="m-0 text-white">{{ snippet.title }}</h4>
+                <span class="badge bg-primary">{{ snippet.language }}</span>
+            </div>
+
+            <div class="card-body">
+                <p class="text-muted small mb-3 border-bottom pb-2">
+                    Autor: <strong>{{ snippet.author }}</strong> | 
+                    Dodano: {{ snippet.created_at|date:"d.m.Y H:i" }}
+                </p>
+
+                <pre class="m-0"><code class="language-{{ snippet.language }} rounded shadow-sm" style="min-height: 200px;">{{ snippet.code }}</code></pre>
+            </div>
+
+            <div class="card-footer bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    
+                    <a href="{% url 'lista_kodow' %}" class="btn btn-outline-secondary">
+                        &larr; Wróć do listy
+                    </a>
+
+                    {% if request.user == snippet.author %}
+                        <div>
+                            <a href="{% url 'edytuj_kod' snippet.pk %}" class="btn btn-warning me-2">
+                                ✏️ Edytuj
+                            </a>
+                            <a href="{% url 'usun_kod' snippet.pk %}" class="btn btn-danger">
+                                🗑️ Usuń
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/monokai-sublime.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script>
+    hljs.highlightAll();
+</script>
+
+{% endblock %}
