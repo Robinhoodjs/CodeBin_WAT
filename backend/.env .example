@@ -1,8 +1,0 @@
-# Tajne do Django
-SECRET_KEY=tymczasowy-klucz-django-do-testow-lokalnych-123
-DEBUG=False
-
-# Hasla do baz danych
-POSTGRES_DB=codebin_db
-POSTGRES_USER=student
-POSTGRES_PASSWORD=sekretne_haslo

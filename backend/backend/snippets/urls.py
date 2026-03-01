@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from rest_framework.authtoken.views import obtain_auth_token
 
 # 1. Tworzymy automatyczny ruter z DRF
 router = DefaultRouter()
@@ -17,4 +18,7 @@ urlpatterns = [
     # --- NOWE GŁÓWNE API ---
     # Podpinamy wszystkie wygenerowane ścieżki pod adres /api/
     path('api/', include(router.urls)),
+    path('api/rejestracja/', views.RejestracjaView.as_view(), name='api_rejestracja'),
+
+    path('api/logowanie/', obtain_auth_token, name='api_logowanie'),
 ]

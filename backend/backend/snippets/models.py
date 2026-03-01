@@ -3,12 +3,16 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings # Potrzebne do powiązania Snippetu z nowym Użytkownikiem
 
 class Uzytkownik(AbstractUser):
-    # Pola: username, password, first_name (imię), last_name (nazwisko), email
-    numer_indeksu = models.CharField(max_length=5, blank=True, null=True, verbose_name="Numer indeksu")
-    grupa_dziekanska = models.CharField(max_length=20, blank=True, null=True, verbose_name="Kod Grupy")
-
-    is_student = models.BooleanField(default=True, verbose_name="Czy to student?")
-    is_teacher = models.BooleanField(default=False, verbose_name="Czy to prowadzący?")
+    '''
+    AbstractUser posiada w sobie wbudowane pola: username, password, first_name, last_name, email
+    '''
+    ROLES = [
+        ('student', 'Student'),
+        ('profesor', 'Profesor'),
+    ]
+    rola = models.CharField(max_length=10, choices=ROLES, default='student')
+    numer_indeksu = models.CharField(max_length=5, blank=True, null=True)
+    grupa_dziekanska = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.username})"

@@ -1,17 +1,26 @@
+# region importy DJANGO
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Snippet
 from .forms import SnippetForm, RejestracjaForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+# endregion importy DJANGO
 
-#Z Django Rest Framework(DRF)
+# region importy Z Django Rest Framework(DRF)
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import SnippetSerializer
 from rest_framework import viewsets
 from .serializers import SnippetSerializer
+from rest_framework import generics
+from django.contrib.auth import get_user_model
+from .serializers import RejestracjaSerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+# endregion importy Z Django Rest Framework(DRF)
 
+User = get_user_model()
 
+# region FUNKCJE
 @login_required
 def snippet_list(request):
     if request.user.is_teacher or request.user.is_superuser:
@@ -91,8 +100,9 @@ def snippet_delete(request, pk):
         return redirect('lista_kodow')
         
     return render(request, 'snippets/snippet_confirm_delete.html', {'snippet': snippet})
+# endregion FUNKCJE
 
-# ----- Sekcja API -----
+# region Funkcje Sekcja API
 class SnippetViewSet(viewsets.ModelViewSet):
     """
     Ten jeden ViewSet automatycznie generuje nam:
@@ -104,3 +114,17 @@ class SnippetViewSet(viewsets.ModelViewSet):
     """
     queryset = Snippet.objects.all().order_by('-created_at')
     serializer_class = SnippetSerializer
+
+class RejestracjaView(generics.CreateAPIView):
+    """
+    Endpoint pozwalający na rejestrację nowego użytkownika.
+    Przyjmuje POST z danymi: username, email, password.
+    """
+    queryset = User.objects.all()
+    serializer_class = RejestracjaSerializer
+
+    '''
+    IsAuthenticatedOrReadOnly - [GET] pozwala każdemu(niezalogowanym też) na pobranie i obejrzenie listy kodów, jednak nie pozwala na POST, PUT, DELETE
+    '''
+    permission_classes = [IsAuthenticatedOrReadOnly]
+# endregion Funkcje Sekcja API

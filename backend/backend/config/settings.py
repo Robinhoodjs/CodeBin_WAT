@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'snippets',
     'rest_framework',
+    'rest_framework.authtoken', #<-- odpowiada za tokeny
     'corsheaders',
 ]
 
@@ -137,3 +138,14 @@ DEBUG = os.environ.get('DEBUG') == 'True'
 
 # Wpuszcza wszystkich
 CORS_ALLOW_ALL_ORIGINS = True
+
+
+'''
+Konfiguracja dla biblioteki REST - mówi django aby sprawdzało zarówno tokeny(dla React) jak i Sesja(dla tesowania API w przeglądarce)
+'''
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication', 
+    ],
+}
