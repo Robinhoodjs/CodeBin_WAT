@@ -1,4 +1,9 @@
 const initialState = {
+	parameters: {
+		title: "",
+		difficulty: "",
+		description: ""
+	},
 	results: {
 		title: "",
 		task: "",

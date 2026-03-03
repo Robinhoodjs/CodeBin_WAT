@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Box, Typography, TextField, Button, Paper, Link, Chip, Alert, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import styles from './Register.module.scss'; 
 
 function Register() {
@@ -41,7 +42,7 @@ function Register() {
         });
     };
 
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         
         // blokada wyslania jesli haslo jest za slabe
@@ -68,7 +69,14 @@ function Register() {
             ...formData,
             role: userRole
         };
-        
+
+        try {
+            const response = await axios.post("http://127.0.0.1:8000/api/rejestracja/", daneRejestracji);
+            console.log(response);
+        } catch (error) {
+            console.error(error);
+        }
+
         console.log('Dane rejestracji:', daneRejestracji);
         navigate('/login'); 
     };

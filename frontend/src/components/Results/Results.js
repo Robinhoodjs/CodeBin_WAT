@@ -1,7 +1,24 @@
 import { TextField, Box, Button, Divider, Stack } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { getParameters } from '../../redux/parametersRedux';
+import { useState } from 'react';
 
 function Results() {
+    const parameters = useSelector(state => getParameters(state));
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await axios.post("http://127.0.0.1:8000/api/kody/", parameters);
+            console.log(response);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     return (
         <Stack spacing={4} sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
             
@@ -46,6 +63,7 @@ function Results() {
                         '&:hover': { bgcolor: '#1b7a43' },
                         boxShadow: 'none'
                     }}
+                    onClick={handleSubmit}
                 >
                     Generuj i publikuj zadanie
                 </Button>
