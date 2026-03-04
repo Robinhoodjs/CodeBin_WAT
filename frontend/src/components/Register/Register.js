@@ -189,6 +189,26 @@ function Register() {
                                     )
                                 }}
                             />
+
+                            <TextField 
+                                name="deansGroup" 
+                                label="Grupa dziekańska" 
+                                type="text" 
+                                value={formData.deansGroup} 
+                                onChange={handleChange} 
+                                fullWidth 
+                                required 
+                            />
+
+                            <TextField 
+                                name="indexNumber" 
+                                label="Numer indeksowy" 
+                                type="number" 
+                                value={formData.indexNumber} 
+                                onChange={handleChange} 
+                                fullWidth 
+                                required 
+                            />
                             
                             <Button 
                                 type="submit" 
