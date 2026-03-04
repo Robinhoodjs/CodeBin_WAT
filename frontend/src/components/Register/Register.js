@@ -65,19 +65,26 @@ function Register() {
             userRole = 'PROFESSOR';
         }
 
-        const daneRejestracji = {
-            ...formData,
-            role: userRole
+        // Dane do wysłania (nie jest identyczne z formData!)
+        const payload = {
+            username: formData.nick,
+            email: formData.email,
+            password: formData.password,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            rola: userRole,
+            grupa_dziekanska: formData.deansGroup,
+            numer_indeksu: formData.indexNumber
         };
 
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/rejestracja/", daneRejestracji);
+            const response = await axios.post("http://127.0.0.1:8000/api/rejestracja/", payload);
             console.log(response);
         } catch (error) {
             console.error(error);
         }
 
-        console.log('Dane rejestracji:', daneRejestracji);
+        console.log('Dane rejestracji:', payload);
         navigate('/login'); 
     };
 
