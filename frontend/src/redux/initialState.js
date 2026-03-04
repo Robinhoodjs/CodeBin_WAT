@@ -1,7 +1,7 @@
 const initialState = {
 	parameters: {
 		title: "",
-		difficulty: "",
+		difficulty: "1",
 		description: ""
 	},
 	results: {
