@@ -9,7 +9,7 @@ function Login() {
     
     // stan formularza
     const [formData, setFormData] = useState({
-        email: '',
+        username: '',
         password: '',
     });
     
@@ -24,7 +24,7 @@ function Login() {
         e.preventDefault();
 
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/logowanie/", formData);
+            const response = await axios.post("http://127.0.0.1:8000/api/logowanie/", formData); // Tutaj można po prostu wysłać formData, bez modyfikacji.
             console.log(response);
         } catch (error) {
             console.error(error);
@@ -48,9 +48,9 @@ function Login() {
 
                         <Box component="form" onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                             <TextField 
-                                name="email"
-                                label="Adres E-mail" 
-                                type="email" 
+                                name="username"
+                                label="Nazwa użytkownika" 
+                                type="text" 
                                 variant="outlined" 
                                 fullWidth 
                                 required 

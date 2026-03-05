@@ -52,7 +52,7 @@ function Generator() {
                         flexDirection: 'column'
                     }}>
                         <Typography variant="h5" sx={{ mb: 4, fontWeight: 700, color: '#d32f2f' }}>
-                            2. Kryteria Oceny i Testy
+                            2. Gotowe Zadanie
                         </Typography>
                         <Results />
                     </Paper>
