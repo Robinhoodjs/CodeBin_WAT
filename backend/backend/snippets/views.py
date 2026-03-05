@@ -10,12 +10,12 @@ from django.core.exceptions import PermissionDenied
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import SnippetSerializer
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from .serializers import SnippetSerializer
 from rest_framework import generics
 from django.contrib.auth import get_user_model
 from .serializers import RejestracjaSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 # endregion importy Z Django Rest Framework(DRF)
 
 User = get_user_model()
@@ -114,6 +114,15 @@ class SnippetViewSet(viewsets.ModelViewSet):
     """
     queryset = Snippet.objects.all().order_by('-created_at')
     serializer_class = SnippetSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly] #    IsAuthenticatedOrReadOnly - [GET] pozwala każdemu(niezalogowanym też) na pobranie i obejrzenie listy kodów, jednak nie pozwala na POST, PUT, DELETE
+
+
+    def perform_create(self, serializer):
+        '''
+        Ta funkcja sprawdza token uwierzytelniania w Headerze i na jego podstawie przypisuje kod właściwemu autorowi
+        '''
+        # self.request.user to obiekt użytkownika, którego Django rozpoznało po Tokenie!
+        serializer.save(author=self.request.user)
 
 class RejestracjaView(generics.CreateAPIView):
     """
@@ -122,9 +131,16 @@ class RejestracjaView(generics.CreateAPIView):
     """
     queryset = User.objects.all()
     serializer_class = RejestracjaSerializer
+    permission_classes = [AllowAny]
 
-    '''
-    IsAuthenticatedOrReadOnly - [GET] pozwala każdemu(niezalogowanym też) na pobranie i obejrzenie listy kodów, jednak nie pozwala na POST, PUT, DELETE
-    '''
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        return Response(
+            {"wiadomosc": "Konto zostało pomyślnie utworzone."},
+            status=status.HTTP_201_CREATED
+        )
+
 # endregion Funkcje Sekcja API

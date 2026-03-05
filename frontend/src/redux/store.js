@@ -1,9 +1,11 @@
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import { thunk } from 'redux-thunk';
 import initialState from './initialState';
+import parametersReducer from './parametersRedux';
 import resultsReducer from './resultsRedux';
 
 const subreducers = {
+	parameters: parametersReducer,
   results: resultsReducer
 }
 
