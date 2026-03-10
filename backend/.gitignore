@@ -7,3 +7,4 @@ postgres_data/
 # Śmieci z Pythona
 __pycache__/
 *.pyc
+*.img
