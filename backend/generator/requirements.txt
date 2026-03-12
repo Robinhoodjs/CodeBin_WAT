@@ -1,0 +1,11 @@
+langchain-anthropic
+langchain
+langgraph
+IPython
+langchain_core
+dotenv
+langchain-openai
+langchain_community
+langchain-tavily
+langchain_experimental
+matplotlib
