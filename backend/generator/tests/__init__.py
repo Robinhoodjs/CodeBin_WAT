@@ -5,14 +5,21 @@ def load_tests(loader, tests, pattern):
     """Ładuje wszystkie moduły testowe jako jeden TestSuite."""
     suite = unittest.TestSuite()
 
-    # --- Testy podstawowe (zawsze uruchamiane) ---
-    from test_api import *
+    import test_utils
+    import test_controller
+    import test_description_creator
+    import test_input_reader
+    import test_output_describer
 
-    core_modules = [
-        test_cv_agent,
+    test_modules = [
+        test_utils,
+        test_controller,
+        test_description_creator,
+        test_input_reader,
+        test_output_describer,
     ]
 
-    for module in core_modules:
+    for module in test_modules:
         suite.addTests(loader.loadTestsFromModule(module))
 
     return suite
