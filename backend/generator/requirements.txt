@@ -9,3 +9,4 @@ langchain_community
 langchain-tavily
 langchain_experimental
 matplotlib
+pytest
