@@ -2,52 +2,74 @@ from typing import Literal
 
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
-from langgraph.graph import MessagesState
+from langgraph.graph import MessagesState, END
 from langgraph.types import Command
 
-from . import llm, make_system_prompt, get_next_node
-
-text_checker_agent = create_agent(
-    model=llm,
-    tools = [],
-    system_prompt=make_system_prompt(
-        ""
-    ),
+from . import (
+    llm, make_system_prompt, get_next_node,
+    TEXT_CHECKER_PROMPT, TEXT_CORRECTOR_PROMPT,
+    AgentState, analysis_llm, output_llm,
 )
 
-def text_checker(state: MessagesState) -> Command[Literal["text_corrector", "END"]]:
-    """Checks semantic and syntactic correctness in Polish"""
+
+def text_checker(state: AgentState) -> Command[Literal["text_corrector", "__end__"]]:
+    """Checks semantic and syntactic correctness in Polish.
+
+    If text is correct → routes to next_stage (via FINAL ANSWER).
+    If text has errors → routes to text_corrector.
+    """
 
     agent = create_agent(
-        model=llm,
+        model=analysis_llm,
         tools=[],
-        system_prompt=make_system_prompt(
-            ""
-        ),
+        system_prompt=make_system_prompt(TEXT_CHECKER_PROMPT),
     )
+
     result = agent.invoke(state)
-    goto = get_next_node(result["messages"][-1], "text_corrector")
+    last_message = result["messages"][-1]
 
-    # result["messages"][-1] = HumanMessage(
-    #     content=result["messages"][-1].content,
-    #     name="researcher"
-    # )
-    # return Command(
-    #     update={
-    #         "messages": result["messages"],
-    #     },
-    #     goto=goto,
-    # )
+    # Determine routing: FINAL ANSWER → next pipeline stage, otherwise → corrector
+    if "FINAL ANSWER" in last_message.content:
+        next_stage = state.get("next_stage", END)
+        goto = next_stage
+    else:
+        goto = "text_corrector"
 
-
-def text_corrector():
-    """Introduces corrections into input text that were noticed"""
-    agent = create_agent(
-        model=llm,
-        tools=[],
-        system_prompt=make_system_prompt(
-            ""
-        ),
+    result["messages"][-1] = HumanMessage(
+        content=last_message.content,
+        name="text_checker",
     )
 
-    pass
+    return Command(
+        update={
+            "messages": result["messages"],
+        },
+        goto=goto,
+    )
+
+
+def text_corrector(state: AgentState) -> Command[Literal["text_checker"]]:
+    """Introduces corrections into text based on errors found by text_checker.
+
+    Always routes back to text_checker for re-validation.
+    """
+
+    agent = create_agent(
+        model=output_llm,
+        tools=[],
+        system_prompt=make_system_prompt(TEXT_CORRECTOR_PROMPT),
+    )
+
+    result = agent.invoke(state)
+
+    result["messages"][-1] = HumanMessage(
+        content=result["messages"][-1].content,
+        name="text_corrector",
+    )
+
+    return Command(
+        update={
+            "messages": result["messages"],
+        },
+        goto="text_checker",
+    )

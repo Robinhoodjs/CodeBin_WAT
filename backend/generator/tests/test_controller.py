@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 import sys
 import os
+import re
 import types
 
 # ---------------------------------------------------------------------------
@@ -22,7 +23,7 @@ sys.modules["langgraph.graph"].END = "__end__"
 sys.modules["langgraph.graph"].MessagesState = dict
 
 # ---------------------------------------------------------------------------
-# Build utils functions (needed by controller)
+# Build utils module
 # ---------------------------------------------------------------------------
 import importlib.util
 
@@ -36,14 +37,13 @@ _utils_mod.ChatOpenAI = MagicMock()
 _utils_mod.load_dotenv = MagicMock()
 _utils_mod.BaseMessage = MagicMock()
 _utils_mod.MessagesState = dict
-_utils_mod.TavilySearch = MagicMock()
 _utils_mod.PythonREPL = MagicMock()
 _utils_mod.getpass = MagicMock()
 _utils_mod.os = os
 _spec_u.loader.exec_module(_utils_mod)
 
 # ---------------------------------------------------------------------------
-# Load controller.py source, replace relative import, then exec
+# Load controller.py source, strip relative imports, then exec
 # ---------------------------------------------------------------------------
 _ctrl_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.pardir, "src", "controller.py")
@@ -52,15 +52,16 @@ _ctrl_path = os.path.abspath(
 with open(_ctrl_path, "r", encoding="utf-8") as f:
     _ctrl_source = f.read()
 
-# Remove the relative import line — we inject deps manually
-_ctrl_source = _ctrl_source.replace(
-    "from . import llm, make_system_prompt, get_next_node", ""
-)
+# Strip all relative imports (single-line and multi-line)
+_ctrl_source = re.sub(r'from \. import \([^)]*\)', '', _ctrl_source, flags=re.DOTALL)
+_ctrl_source = re.sub(r'from \. import [^\n(]+\n', '\n', _ctrl_source)
 
 _ctrl_mod = types.ModuleType("generator_controller")
 
 # Inject everything the controller expects
 _ctrl_mod.llm = MagicMock()
+_ctrl_mod.analysis_llm = MagicMock()
+_ctrl_mod.output_llm = MagicMock()
 _ctrl_mod.make_system_prompt = _utils_mod.make_system_prompt
 _ctrl_mod.get_next_node = _utils_mod.get_next_node
 _ctrl_mod.create_agent = MagicMock()
@@ -69,11 +70,10 @@ _ctrl_mod.MessagesState = dict
 _ctrl_mod.Command = MagicMock()
 _ctrl_mod.Literal = None
 _ctrl_mod.END = "__end__"
+_ctrl_mod.TEXT_CHECKER_PROMPT = _utils_mod.TEXT_CHECKER_PROMPT
+_ctrl_mod.TEXT_CORRECTOR_PROMPT = _utils_mod.TEXT_CORRECTOR_PROMPT
+_ctrl_mod.AgentState = _utils_mod.AgentState
 
-# Provide the names that other top-level imports in controller.py expect
-_ctrl_mod.__dict__["Literal"] = getattr(__builtins__, "None", None)
-
-# Add all the imports the file does at the top
 exec(compile(_ctrl_source, _ctrl_path, "exec"), _ctrl_mod.__dict__)
 
 text_checker = _ctrl_mod.text_checker
@@ -93,49 +93,47 @@ class TestTextChecker(unittest.TestCase):
         last_msg = MagicMock()
         last_msg.content = "Some corrected text"
         mock_agent.invoke.return_value = {"messages": [last_msg]}
-
         _ctrl_mod.create_agent = MagicMock(return_value=mock_agent)
 
-        state = {"messages": [MagicMock()]}
+        state = {"messages": [MagicMock()], "current_stage": "scenario_creator", "next_stage": "story_teller"}
         text_checker(state)
 
         _ctrl_mod.create_agent.assert_called_once()
         mock_agent.invoke.assert_called_once_with(state)
 
-    def test_calls_get_next_node_with_last_message(self):
-        """text_checker should pass the last message to get_next_node."""
+    def test_routes_to_text_corrector_when_errors(self):
+        """text_checker should route to text_corrector when no FINAL ANSWER."""
         mock_agent = MagicMock()
         last_msg = MagicMock()
-        last_msg.content = "FINAL ANSWER: OK"
-        mock_agent.invoke.return_value = {"messages": [last_msg]}
-
-        _ctrl_mod.create_agent = MagicMock(return_value=mock_agent)
-
-        with patch.object(_ctrl_mod, "get_next_node", wraps=_utils_mod.get_next_node) as mock_gnn:
-            text_checker({"messages": []})
-            mock_gnn.assert_called_once_with(last_msg, "text_corrector")
-
-    def test_get_next_node_returns_end_on_final_answer(self):
-        """When agent returns FINAL ANSWER, get_next_node should return END."""
-        mock_agent = MagicMock()
-        last_msg = MagicMock()
-        last_msg.content = "FINAL ANSWER: Text is correct."
+        last_msg.content = "BŁĘDY:\n- literówka w słowie"
         mock_agent.invoke.return_value = {"messages": [last_msg]}
         _ctrl_mod.create_agent = MagicMock(return_value=mock_agent)
 
-        result = _utils_mod.get_next_node(last_msg, "text_corrector")
-        self.assertEqual(result, END)
+        state = {"messages": [], "current_stage": "scenario_creator", "next_stage": "story_teller"}
+        text_checker(state)
 
-    def test_get_next_node_returns_goto_without_final_answer(self):
-        """When no FINAL ANSWER, get_next_node should return the goto node."""
+        cmd_call = _ctrl_mod.Command.call_args
+        self.assertEqual(cmd_call.kwargs.get("goto", cmd_call[1].get("goto", None)), "text_corrector")
+
+    def test_routes_to_next_stage_on_final_answer(self):
+        """text_checker should route to next_stage on FINAL ANSWER."""
         mock_agent = MagicMock()
         last_msg = MagicMock()
-        last_msg.content = "There are errors to fix."
+        last_msg.content = "FINAL ANSWER: Tekst jest poprawny."
         mock_agent.invoke.return_value = {"messages": [last_msg]}
         _ctrl_mod.create_agent = MagicMock(return_value=mock_agent)
 
-        result = _utils_mod.get_next_node(last_msg, "text_corrector")
-        self.assertEqual(result, "text_corrector")
+        state = {"messages": [], "current_stage": "scenario_creator", "next_stage": "story_teller"}
+        text_checker(state)
+
+        cmd_call = _ctrl_mod.Command.call_args
+        self.assertEqual(cmd_call.kwargs.get("goto", cmd_call[1].get("goto", None)), "story_teller")
+
+    def test_is_callable(self):
+        self.assertTrue(callable(text_checker))
+
+    def test_has_docstring(self):
+        self.assertIsNotNone(text_checker.__doc__)
 
 
 class TestTextCorrector(unittest.TestCase):
@@ -144,26 +142,36 @@ class TestTextCorrector(unittest.TestCase):
     def test_is_callable(self):
         self.assertTrue(callable(text_corrector))
 
-    def test_returns_none(self):
-        """Current stub implementation returns None (pass)."""
-        _ctrl_mod.create_agent = MagicMock()
-        result = text_corrector()
-        self.assertIsNone(result)
+    def test_invokes_agent_and_returns_command(self):
+        """text_corrector should create an agent, invoke it, and return a Command."""
+        mock_agent = MagicMock()
+        last_msg = MagicMock()
+        last_msg.content = "FINAL ANSWER: Poprawiony tekst."
+        mock_agent.invoke.return_value = {"messages": [last_msg]}
+        _ctrl_mod.create_agent = MagicMock(return_value=mock_agent)
 
-    def test_creates_agent_internally(self):
-        """text_corrector should call create_agent."""
-        mock_create = MagicMock()
-        _ctrl_mod.create_agent = mock_create
-        text_corrector()
-        mock_create.assert_called_once()
+        state = {"messages": [MagicMock()], "current_stage": "story_teller", "next_stage": "names_creator"}
+        text_corrector(state)
 
-    def test_accepts_no_arguments(self):
-        """text_corrector should be callable with no args."""
-        _ctrl_mod.create_agent = MagicMock()
-        try:
-            text_corrector()
-        except TypeError:
-            self.fail("text_corrector() raised TypeError unexpectedly")
+        _ctrl_mod.create_agent.assert_called_once()
+        mock_agent.invoke.assert_called_once_with(state)
+
+    def test_routes_to_text_checker(self):
+        """text_corrector should always route back to text_checker."""
+        mock_agent = MagicMock()
+        last_msg = MagicMock()
+        last_msg.content = "FINAL ANSWER: Poprawiony tekst."
+        mock_agent.invoke.return_value = {"messages": [last_msg]}
+        _ctrl_mod.create_agent = MagicMock(return_value=mock_agent)
+
+        state = {"messages": [], "current_stage": "story_teller", "next_stage": "names_creator"}
+        text_corrector(state)
+
+        cmd_call = _ctrl_mod.Command.call_args
+        self.assertEqual(cmd_call.kwargs.get("goto", cmd_call[1].get("goto", None)), "text_checker")
+
+    def test_has_docstring(self):
+        self.assertIsNotNone(text_corrector.__doc__)
 
 
 if __name__ == "__main__":

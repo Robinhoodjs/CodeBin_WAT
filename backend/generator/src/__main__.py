@@ -1,45 +1,110 @@
-from langgraph.graph import StateGraph, START
-from langgraph.graph import MessagesState, END
-from . import should_continue, input_reader, output_describer, text_checker, text_corrector, story_teller, names_creator, task_describer
+from langgraph.graph import StateGraph, START, END
 
-workflow = StateGraph(MessagesState)
+from .utils import AgentState
+from .input_reader import input_reader
+from .description_creator import scenario_creator, story_teller, names_creator, task_describer
+from .output_describer import output_describer
+from .controller import text_checker, text_corrector
+
+
+# ---------------------------------------------------------------------------
+# Build the LangGraph workflow
+# ---------------------------------------------------------------------------
+workflow = StateGraph(AgentState)
+
+# Register all nodes
 workflow.add_node("input_reader", input_reader)
-workflow.add_node("scenario_creator", )
-workflow.add_node("story_teller", )
-workflow.add_node("names_creator", )
-workflow.add_node("task_describer", )
-workflow.add_node("text_checker", )
-workflow.add_node("text_corrector", )
-workflow.add_node("output_describer", )
+workflow.add_node("scenario_creator", scenario_creator)
+workflow.add_node("story_teller", story_teller)
+workflow.add_node("names_creator", names_creator)
+workflow.add_node("task_describer", task_describer)
+workflow.add_node("output_describer", output_describer)
+workflow.add_node("text_checker", text_checker)
+workflow.add_node("text_corrector", text_corrector)
 
+# ---------------------------------------------------------------------------
+# Edges — linear pipeline with validation loops
+# ---------------------------------------------------------------------------
+# START → input_reader → scenario_creator
 workflow.add_edge(START, "input_reader")
 workflow.add_edge("input_reader", "scenario_creator")
-workflow.add_conditional_edges(
-    "text_checker",
-    should_continue,
-    ["text_corrector", END],
-)
 
-workflow.add_edge("output_describer", END)
+# Each content agent → text_checker (done via Command in agent code)
+# text_corrector always loops back to text_checker (done via Command)
+# text_checker routes dynamically to next_stage or text_corrector (done via Command)
+
+# We need to declare that text_checker can reach all pipeline stages + text_corrector + END
+# and text_corrector can reach text_checker.
+# LangGraph's Command-based routing handles this automatically when nodes return Command objects.
+
+# Compile the graph
 graph = workflow.compile()
 
-from IPython.display import Image, display
-try:
-    display(Image(graph.get_graph().draw_mermaid_png()))
-except Exception:
-    pass
+
+# ---------------------------------------------------------------------------
+# Visualize the graph (optional, for development)
+# ---------------------------------------------------------------------------
+def visualize():
+    """Render the graph as a Mermaid PNG (requires IPython)."""
+    from IPython.display import Image, display
+    try:
+        display(Image(graph.get_graph().draw_mermaid_png()))
+    except Exception:
+        pass
 
 
-from langchain.messages import HumanMessage
-messages = [
-    HumanMessage(
-        content=
-        """
-        CODE
-        """
-    )
-]
-messages = graph.invoke({"messages": messages})
+# ---------------------------------------------------------------------------
+# Run the pipeline
+# ---------------------------------------------------------------------------
+def run(code: str):
+    """Execute the full pipeline on a given code snippet.
 
-for m in messages["messages"]:
-    m.pretty_print()
+    Args:
+        code: Source code to generate a task description for.
+
+    Returns:
+        List of messages produced by the pipeline.
+    """
+    from langchain_core.messages import HumanMessage
+
+    messages = [
+        HumanMessage(
+            content=f"Przeanalizuj poniższy kod i wygeneruj zadanie programistyczne:\n\n```\n{code}\n```"
+        )
+    ]
+
+    result = graph.invoke({
+        "messages": messages,
+        "current_stage": "",
+        "next_stage": "scenario_creator",
+    })
+
+    return result["messages"]
+
+
+if __name__ == "__main__":
+    import sys
+    import os
+
+    # Try to read code from resources/code.txt or from command-line argument
+    code_path = os.path.join(os.path.dirname(__file__), os.pardir, "resources", "code.txt")
+
+    if len(sys.argv) > 1:
+        code = sys.argv[1]
+    elif os.path.exists(code_path):
+        with open(code_path, "r", encoding="utf-8") as f:
+            code = f.read().strip()
+    else:
+        code = input("Podaj kod do analizy:\n")
+
+    if not code:
+        print("Brak kodu do analizy. Podaj kod jako argument lub wpisz do resources/code.txt")
+        sys.exit(1)
+
+    messages = run(code)
+
+    print("\n" + "=" * 60)
+    print("WYNIKI PIPELINE")
+    print("=" * 60)
+    for m in messages:
+        m.pretty_print()
