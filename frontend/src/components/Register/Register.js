@@ -58,12 +58,12 @@ function Register() {
 
         setError(''); 
         
-        // Zmiana 1: Role małymi literami (musi pasować do Twojego models.py!)
+        // Zmiana 1: Zmiana nazw ról - aby pasowało do wymagań bazy danych
         let userRole = 'unknown';
         if (isStudent) {
             userRole = 'student';
         } else if (isProfessor) {
-            userRole = 'pracownik'; // lub 'professor' - zależnie jak masz w Django
+            userRole = 'profesor';
         }
 
         const payload = {
