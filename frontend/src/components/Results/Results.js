@@ -1,4 +1,4 @@
-import { TextField, Divider, Stack } from '@mui/material';
+import { TextField, Stack } from '@mui/material';
 
 function Results() {
     return (
