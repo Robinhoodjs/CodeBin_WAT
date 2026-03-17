@@ -58,14 +58,14 @@ function Register() {
 
         setError(''); 
         
-        let userRole = 'UNKNOWN';
+        // Zmiana 1: Zmiana nazw ról - aby pasowało do wymagań bazy danych
+        let userRole = 'unknown';
         if (isStudent) {
-            userRole = 'STUDENT';
+            userRole = 'student';
         } else if (isProfessor) {
-            userRole = 'PROFESSOR';
+            userRole = 'profesor';
         }
 
-        // Dane do wysłania (nie jest identyczne z formData!)
         const payload = {
             username: formData.nick,
             email: formData.email,
@@ -77,11 +77,25 @@ function Register() {
             numer_indeksu: formData.indexNumber
         };
 
+        // Zmiana 2: Poprawna obsługa sukcesu i błędu
         try {
             const response = await axios.post("http://127.0.0.1:8000/api/rejestracja/", payload);
-            console.log(response);
+            console.log('Rejestracja udana:', response.data);
+            
+            // Przekierowujemy do logowania TYLKO, gdy backend zwróci sukces (status 200/201)
+            navigate('/login'); 
+            
         } catch (error) {
-            console.error(error);
+            console.error('Błąd rejestracji:', error);
+            
+            // Wyciągamy dokładny błąd, który zwróciło Twoje Django
+            if (error.response && error.response.data) {
+                // Przerabiamy obiekt błędu (np. {"username": ["Użytkownik już istnieje"]}) na tekst
+                const errorMessages = Object.values(error.response.data).flat().join(' | ');
+                setError(`Odmowa serwera: ${errorMessages}`);
+            } else {
+                setError('Brak odpowiedzi z serwera. Sprawdź, czy backend działa.');
+            }
         }
 
         console.log('Dane rejestracji:', payload);
@@ -190,26 +204,6 @@ function Register() {
                                 }}
                             />
 
-                            <TextField 
-                                name="deansGroup" 
-                                label="Grupa dziekańska" 
-                                type="text" 
-                                value={formData.deansGroup} 
-                                onChange={handleChange} 
-                                fullWidth 
-                                required 
-                            />
-
-                            <TextField 
-                                name="indexNumber" 
-                                label="Numer indeksowy" 
-                                type="number" 
-                                value={formData.indexNumber} 
-                                onChange={handleChange} 
-                                fullWidth 
-                                required 
-                            />
-                            
                             <Button 
                                 type="submit" 
                                 variant="contained" 
