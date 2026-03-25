@@ -28,7 +28,7 @@ sys.modules["langgraph.graph"].MessagesState = dict
 import importlib.util
 
 _utils_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, "src", "utils.py")
+    os.path.join(os.path.dirname(__file__), os.pardir, "src", "agents/utils.py")
 )
 _spec_u = importlib.util.spec_from_file_location("generator_utils", _utils_path)
 _utils_mod = importlib.util.module_from_spec(_spec_u)
@@ -46,21 +46,19 @@ _spec_u.loader.exec_module(_utils_mod)
 # Load input_reader.py source, strip relative imports, then exec
 # ---------------------------------------------------------------------------
 _ir_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, "src", "input_reader.py")
+    os.path.join(os.path.dirname(__file__), os.pardir, "src", "agents/input_reader.py")
 )
 
 with open(_ir_path, "r", encoding="utf-8") as f:
     _ir_source = f.read()
 
-_ir_source = re.sub(r'from \. import \([^)]*\)', '', _ir_source, flags=re.DOTALL)
-_ir_source = re.sub(r'from \. import [^\n(]+\n', '\n', _ir_source)
+_ir_source = re.sub(r'from \.utils import [^\n(]+\n', '\n', _ir_source)
+_ir_source = re.sub(r'from \.\w+ import [^\n(]+\n', '\n', _ir_source)
 
 _ir_mod = types.ModuleType("generator_input_reader")
 _ir_mod.llm = MagicMock()
 _ir_mod.analysis_llm = MagicMock()
 _ir_mod.make_system_prompt = _utils_mod.make_system_prompt
-_ir_mod.get_next_node = _utils_mod.get_next_node
-_ir_mod.INPUT_READER_PROMPT = _utils_mod.INPUT_READER_PROMPT
 _ir_mod.create_agent = MagicMock()
 _ir_mod.HumanMessage = MagicMock()
 _ir_mod.MessagesState = dict

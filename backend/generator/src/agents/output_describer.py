@@ -5,8 +5,25 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph import MessagesState, END
 from langgraph.types import Command
 
-from . import output_llm, make_system_prompt, OUTPUT_DESCRIBER_PROMPT
+from .utils import output_llm, make_system_prompt
 
+
+OUTPUT_DESCRIBER_PROMPT = (
+    "Jesteś ekspertem od dokumentacji technicznej po polsku.\n"
+    "Na podstawie analizy kodu i wcześniejszych informacji, "
+    "wygeneruj czytelny opis techniczny:\n\n"
+    "1. DANE WEJŚCIOWE:\n"
+    "   - Ile danych jest wczytywanych\n"
+    "   - Jakiego są typu (int, float, string, ...)\n"
+    "   - W jakim formacie są podawane\n\n"
+    "2. DANE WYJŚCIOWE:\n"
+    "   - Co zwraca / wypisuje program\n"
+    "   - Jakiego typu jest wynik\n"
+    "   - W jakim formacie jest prezentowany\n\n"
+    "Pisz w formie listy punktowanej lub tabeli. "
+    "Tekst ma być zrozumiały dla studenta programowania.\n"
+    "Gdy skończysz, poprzedź odpowiedź słowami FINAL ANSWER."
+)
 
 def output_describer(state: MessagesState) -> Command[Literal["text_checker"]]:
     """Generates text describing how large input is, which types are demanded,

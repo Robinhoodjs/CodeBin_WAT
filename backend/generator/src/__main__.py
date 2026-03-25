@@ -1,10 +1,16 @@
 from langgraph.graph import StateGraph, START, END
 
-from .utils import AgentState, should_continue
-from .input_reader import input_reader
-from .description_creator import scenario_creator, story_teller, names_creator, task_describer
-from .output_describer import output_describer
-from .controller import text_checker, text_corrector
+from .agents import (
+    AgentState,
+    input_reader,
+    scenario_creator,
+    story_teller,
+    names_creator,
+    task_describer,
+    output_describer,
+    text_checker,
+    text_corrector
+)
 
 
 # ---------------------------------------------------------------------------
@@ -28,32 +34,20 @@ workflow.add_node("text_corrector", text_corrector)
 # START → input_reader → scenario_creator
 workflow.add_edge(START, "input_reader")
 workflow.add_edge("input_reader", "scenario_creator")
-workflow.add_edge("scenario_creator", "story_teller")
-workflow.add_edge("story_teller", "names_creator")
-workflow.add_edge("names_creator", "task_describer")
-workflow.add_edge("task_describer", "output_describer")
-workflow.add_edge("output_describer", "text_checker")
-workflow.add_conditional_edges(
-    "text_checker",
-    should_continue,
-    ["text_corrector", END],
-)
+# workflow.add_edge("scenario_creator", "story_teller")
+# workflow.add_edge("story_teller", "names_creator")
+# workflow.add_edge("names_creator", "task_describer")
+# workflow.add_edge("task_describer", "output_describer")
+# workflow.add_edge("output_describer", "text_checker")
+# workflow.add_conditional_edges(
+#     "text_checker",
+#     should_continue,
+#     ["text_corrector", END],
+# )
 
-# Each content agent → text_checker (done via Command in agent code)
-# text_corrector always loops back to text_checker (done via Command)
-# text_checker routes dynamically to next_stage or text_corrector (done via Command)
-
-# We need to declare that text_checker can reach all pipeline stages + text_corrector + END
-# and text_corrector can reach text_checker.
-# LangGraph's Command-based routing handles this automatically when nodes return Command objects.
-
-# Compile the graph
 graph = workflow.compile()
 
 
-# ---------------------------------------------------------------------------
-# Visualize the graph (optional, for development)
-# ---------------------------------------------------------------------------
 def visualize():
     """Render the graph as a Mermaid PNG (requires IPython)."""
     from IPython.display import Image, display
@@ -62,10 +56,6 @@ def visualize():
     except Exception:
         pass
 
-
-# ---------------------------------------------------------------------------
-# Run the pipeline
-# ---------------------------------------------------------------------------
 def run(code: str):
     """Execute the full pipeline on a given code snippet.
 
@@ -111,7 +101,7 @@ if __name__ == "__main__":
         print("Brak kodu do analizy. Podaj kod jako argument lub wpisz do resources/code.txt")
         sys.exit(1)
 
-    messages = run(code)
+    messages = (code)
 
     print("\n" + "=" * 60)
     print("WYNIKI PIPELINE")

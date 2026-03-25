@@ -5,7 +5,22 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph import MessagesState
 from langgraph.types import Command
 
-from . import make_system_prompt, get_next_node, INPUT_READER_PROMPT, analysis_llm
+from .utils import make_system_prompt, analysis_llm
+
+INPUT_READER_PROMPT = (
+    "Jesteś ekspertem od analizy kodu źródłowego.\n"
+    "Twoim zadaniem jest przeanalizowanie podanego fragmentu kodu i określenie:\n"
+    "1. Ile danych wejściowych przyjmuje kod (liczba zmiennych/argumentów wczytywanych)\n"
+    "2. Jakiego typu są te dane (int, float, string, bool, lista, tablica, itp.)\n"
+    "3. W jakim formacie są wczytywane (np. jedna linia, wiele linii, separowane spacjami)\n"
+    "4. Jaki jest zakres/ograniczenia wartości (jeśli wynikają z kodu)\n\n"
+    "Odpowiedz w formie strukturalnej, np.:\n"
+    "- Liczba danych wejściowych: N\n"
+    "- Dane: typ1 nazwa1, typ2 nazwa2, ...\n"
+    "- Format wczytywania: opis\n\n"
+    "Odpowiadaj ZAWSZE po polsku.\n"
+    "Gdy skończysz analizę, poprzedź swoją odpowiedź słowami FINAL ANSWER."
+)
 
 
 def input_reader(state: MessagesState) -> Command[Literal["scenario_creator"]]:

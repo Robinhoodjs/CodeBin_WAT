@@ -28,7 +28,7 @@ sys.modules["langgraph.graph"].MessagesState = dict
 import importlib.util
 
 _utils_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, "src", "utils.py")
+    os.path.join(os.path.dirname(__file__), os.pardir, "src", "agents/utils.py")
 )
 _spec_u = importlib.util.spec_from_file_location("generator_utils", _utils_path)
 _utils_mod = importlib.util.module_from_spec(_spec_u)
@@ -46,15 +46,15 @@ _spec_u.loader.exec_module(_utils_mod)
 # Load controller.py source, strip relative imports, then exec
 # ---------------------------------------------------------------------------
 _ctrl_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, "src", "controller.py")
+    os.path.join(os.path.dirname(__file__), os.pardir, "src", "agents/text_controllers.py")
 )
 
 with open(_ctrl_path, "r", encoding="utf-8") as f:
     _ctrl_source = f.read()
 
 # Strip all relative imports (single-line and multi-line)
-_ctrl_source = re.sub(r'from \. import \([^)]*\)', '', _ctrl_source, flags=re.DOTALL)
-_ctrl_source = re.sub(r'from \. import [^\n(]+\n', '\n', _ctrl_source)
+_ctrl_source = re.sub(r'from \.utils import \(.*?\)', '', _ctrl_source, flags=re.DOTALL)
+_ctrl_source = re.sub(r'from \.\w+ import [^\n(]+\n', '\n', _ctrl_source)
 
 _ctrl_mod = types.ModuleType("generator_controller")
 
@@ -63,15 +63,12 @@ _ctrl_mod.llm = MagicMock()
 _ctrl_mod.analysis_llm = MagicMock()
 _ctrl_mod.output_llm = MagicMock()
 _ctrl_mod.make_system_prompt = _utils_mod.make_system_prompt
-_ctrl_mod.get_next_node = _utils_mod.get_next_node
 _ctrl_mod.create_agent = MagicMock()
 _ctrl_mod.HumanMessage = MagicMock()
 _ctrl_mod.MessagesState = dict
 _ctrl_mod.Command = MagicMock()
 _ctrl_mod.Literal = None
 _ctrl_mod.END = "__end__"
-_ctrl_mod.TEXT_CHECKER_PROMPT = _utils_mod.TEXT_CHECKER_PROMPT
-_ctrl_mod.TEXT_CORRECTOR_PROMPT = _utils_mod.TEXT_CORRECTOR_PROMPT
 _ctrl_mod.AgentState = _utils_mod.AgentState
 
 exec(compile(_ctrl_source, _ctrl_path, "exec"), _ctrl_mod.__dict__)

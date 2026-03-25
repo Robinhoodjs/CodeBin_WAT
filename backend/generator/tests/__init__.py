@@ -5,11 +5,11 @@ def load_tests(loader, tests, pattern):
     """Ładuje wszystkie moduły testowe jako jeden TestSuite."""
     suite = unittest.TestSuite()
 
-    import test_utils
-    import test_controller
-    import test_description_creator
-    import test_input_reader
-    import test_output_describer
+    from . import test_utils
+    from . import test_controller
+    from . import test_description_creator
+    from . import test_input_reader
+    from . import test_output_describer
 
     test_modules = [
         test_utils,

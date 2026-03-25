@@ -28,7 +28,7 @@ sys.modules["langgraph.graph"].MessagesState = dict
 import importlib.util
 
 _utils_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, "src", "utils.py")
+    os.path.join(os.path.dirname(__file__), os.pardir, "src", "agents/utils.py")
 )
 _spec_u = importlib.util.spec_from_file_location("generator_utils", _utils_path)
 _utils_mod = importlib.util.module_from_spec(_spec_u)
@@ -46,20 +46,19 @@ _spec_u.loader.exec_module(_utils_mod)
 # Load output_describer.py source, strip relative imports, then exec
 # ---------------------------------------------------------------------------
 _od_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, "src", "output_describer.py")
+    os.path.join(os.path.dirname(__file__), os.pardir, "src", "agents/output_describer.py")
 )
 
 with open(_od_path, "r", encoding="utf-8") as f:
     _od_source = f.read()
 
-_od_source = re.sub(r'from \. import \(.*?\)', '', _od_source, flags=re.DOTALL)
-_od_source = re.sub(r'from \. import .+', '', _od_source)
+_od_source = re.sub(r'from \.utils import [^\n(]+\n', '\n', _od_source)
+_od_source = re.sub(r'from \.\w+ import [^\n(]+\n', '\n', _od_source)
 
 _od_mod = types.ModuleType("generator_output_describer")
 _od_mod.llm = MagicMock()
 _od_mod.output_llm = MagicMock()
 _od_mod.make_system_prompt = _utils_mod.make_system_prompt
-_od_mod.OUTPUT_DESCRIBER_PROMPT = _utils_mod.OUTPUT_DESCRIBER_PROMPT
 _od_mod.create_agent = MagicMock()
 _od_mod.HumanMessage = MagicMock()
 _od_mod.MessagesState = dict

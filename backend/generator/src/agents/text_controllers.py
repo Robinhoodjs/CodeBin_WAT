@@ -2,15 +2,35 @@ from typing import Literal
 
 from langchain.agents import create_agent
 from langchain_core.messages import HumanMessage
-from langgraph.graph import MessagesState, END
+from langgraph.graph import END
 from langgraph.types import Command
 
-from . import (
-    llm, make_system_prompt, get_next_node,
-    TEXT_CHECKER_PROMPT, TEXT_CORRECTOR_PROMPT,
+from .utils import (
+    make_system_prompt,
     AgentState, analysis_llm, output_llm,
 )
 
+
+
+TEXT_CHECKER_PROMPT = (
+    "Jesteś korektorem tekstów w języku polskim.\n"
+    "Twoim zadaniem jest sprawdzenie otrzymanego tekstu pod kątem:\n"
+    "1. Poprawności gramatycznej i ortograficznej\n"
+    "2. Poprawności interpunkcyjnej\n"
+    "3. Spójności semantycznej (czy tekst ma sens, jest logiczny)\n"
+    "4. Naturalności stylu (czy brzmi naturalnie po polsku)\n\n"
+    "Jeśli tekst jest POPRAWNY — odpowiedz:\n"
+    "FINAL ANSWER: Tekst jest poprawny.\n"
+    "[tutaj pełny oryginalny tekst bez zmian]\n\n"
+    "Jeśli tekst ZAWIERA BŁĘDY — wymień je w postaci listy:\n"
+    "BŁĘDY:\n"
+    "- opis błędu 1\n"
+    "- opis błędu 2\n"
+    "...\n"
+    "Następnie podaj poprawioną wersję tekstu.\n"
+ 
+    "NIE używaj słów FINAL ANSWER jeśli są błędy."
+)
 
 def text_checker(state: AgentState) -> Command[Literal["text_corrector", "__end__"]]:
     """Checks semantic and syntactic correctness in Polish.
@@ -47,6 +67,18 @@ def text_checker(state: AgentState) -> Command[Literal["text_corrector", "__end_
         goto=goto,
     )
 
+
+TEXT_CORRECTOR_PROMPT = (
+    "Jesteś ekspertem od korekty tekstów po polsku.\n"
+    "Otrzymasz tekst wraz z listą błędów znalezionych przez korektora.\n\n"
+    "Twoim zadaniem jest:\n"
+    "1. Przeczytać oryginalny tekst i listę błędów\n"
+    "2. Poprawić WSZYSTKIE wymienione błędy\n"
+    "3. Zachować oryginalny styl i intencję tekstu\n"
+    "4. Zwrócić poprawioną wersję tekstu\n\n"
+    "Gdy skończysz, poprzedź odpowiedź słowami FINAL ANSWER, "
+    "a następnie podaj pełny poprawiony tekst."
+)
 
 def text_corrector(state: AgentState) -> Command[Literal["text_checker"]]:
     """Introduces corrections into text based on errors found by text_checker.

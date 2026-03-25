@@ -38,7 +38,7 @@ _mock_langgraph_graph.END = "__end__"
 import importlib.util
 
 _utils_path = os.path.join(
-    os.path.dirname(__file__), os.pardir, "src", "utils.py"
+    os.path.dirname(__file__), os.pardir, "src", "agents/utils.py"
 )
 _spec = importlib.util.spec_from_file_location("generator_utils", os.path.abspath(_utils_path))
 _utils_mod = importlib.util.module_from_spec(_spec)
