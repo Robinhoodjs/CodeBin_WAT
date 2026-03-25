@@ -5,7 +5,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph import MessagesState, END
 from langgraph.types import Command
 
-from .utils import output_llm, make_system_prompt
+from .utils import make_system_prompt
 
 
 OUTPUT_DESCRIBER_PROMPT = (

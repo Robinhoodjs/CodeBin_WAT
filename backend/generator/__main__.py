@@ -1,4 +1,7 @@
-from langgraph.graph import StateGraph, START, END
+from dotenv import load_dotenv
+from langgraph.graph import StateGraph, START
+
+load_dotenv()
 
 from backend.generator.src.agents import (
     AgentState,
@@ -11,7 +14,6 @@ from backend.generator.src.agents import (
     text_checker,
     text_corrector
 )
-
 
 # ---------------------------------------------------------------------------
 # Build the LangGraph workflow
@@ -66,7 +68,6 @@ def run(code: str):
         List of messages produced by the pipeline.
     """
     from langchain_core.messages import HumanMessage
-    print("START")
     messages = [
         HumanMessage(
             content=f"Przeanalizuj poniższy kod i wygeneruj zadanie programistyczne:\n\n```\n{code}\n```"
@@ -101,7 +102,7 @@ if __name__ == "__main__":
         print("Brak kodu do analizy. Podaj kod jako argument lub wpisz do resources/code.txt")
         sys.exit(1)
 
-    messages = (code)
+    messages = run(code)
 
     print("\n" + "=" * 60)
     print("WYNIKI PIPELINE")

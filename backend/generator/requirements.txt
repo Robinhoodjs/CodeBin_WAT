@@ -10,3 +10,5 @@ langchain-tavily
 langchain_experimental
 matplotlib
 pytest
+lmstudio
+openai

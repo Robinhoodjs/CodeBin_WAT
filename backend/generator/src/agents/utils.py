@@ -2,33 +2,34 @@ import getpass
 import os
 from typing import Literal
 
-from dotenv import load_dotenv
 from langchain_core.messages import BaseMessage
-
 from langchain_openai import ChatOpenAI
+
 from langgraph.graph import END, MessagesState
 
-load_dotenv()
+ENDPOINT = os.getenv("LMSTUDIO_ENDPOINT")
+API_KEY = os.getenv("OPENAI_API_KEY")
+MODEL = "google/gemma-3-4b"
 
 analysis_llm = ChatOpenAI(
-    model="gemma-3-4b",
-    base_url=os.getenv("LMSTUDIO_ENDPOINT"),
-    api_key=os.getenv("LMSTUDIO_API_KEY"),
+    model=MODEL,
+    base_url=ENDPOINT,
+    api_key=API_KEY,
     temperature=0.0,
 )
 
 
 story_teller_llm = ChatOpenAI(
-    model="gemma-3-4b",
-    base_url=os.getenv("LMSTUDIO_ENDPOINT"),
-    api_key=os.getenv("LMSTUDIO_API_KEY"),
+    model=MODEL,
+    base_url=ENDPOINT,
+    api_key=API_KEY,
     temperature=0.7,
 )
 
 output_llm = ChatOpenAI(
-    model="gemma-3-4b",
-    base_url=os.getenv("LMSTUDIO_ENDPOINT"),
-    api_key=os.getenv("LMSTUDIO_API_KEY"),
+    model=MODEL,
+    base_url=ENDPOINT,
+    api_key=API_KEY,
     temperature=0.3,
 )
 
