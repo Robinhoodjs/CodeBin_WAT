@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph, START, END
 
-from .utils import AgentState
+from .utils import AgentState, should_continue
 from .input_reader import input_reader
 from .description_creator import scenario_creator, story_teller, names_creator, task_describer
 from .output_describer import output_describer
@@ -28,6 +28,16 @@ workflow.add_node("text_corrector", text_corrector)
 # START → input_reader → scenario_creator
 workflow.add_edge(START, "input_reader")
 workflow.add_edge("input_reader", "scenario_creator")
+workflow.add_edge("scenario_creator", "story_teller")
+workflow.add_edge("story_teller", "names_creator")
+workflow.add_edge("names_creator", "task_describer")
+workflow.add_edge("task_describer", "output_describer")
+workflow.add_edge("output_describer", "text_checker")
+workflow.add_conditional_edges(
+    "text_checker",
+    should_continue,
+    ["text_corrector", END],
+)
 
 # Each content agent → text_checker (done via Command in agent code)
 # text_corrector always loops back to text_checker (done via Command)

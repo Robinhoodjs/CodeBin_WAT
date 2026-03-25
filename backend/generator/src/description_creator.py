@@ -39,7 +39,7 @@ def scenario_creator(state: MessagesState) -> Command[Literal["text_checker"]]:
 
 
 def story_teller(state: MessagesState) -> Command[Literal["text_checker"]]:
-    """Creates a tale-style description of the task with placeholder names and places."""
+    """Creates a tale-style description of the task with placeholders for names and places."""
 
     agent = create_agent(
         model=story_teller_llm,
