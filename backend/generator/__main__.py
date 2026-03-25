@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph, START, END
 
-from .agents import (
+from backend.generator.src.agents import (
     AgentState,
     input_reader,
     scenario_creator,
@@ -66,7 +66,7 @@ def run(code: str):
         List of messages produced by the pipeline.
     """
     from langchain_core.messages import HumanMessage
-
+    print("START")
     messages = [
         HumanMessage(
             content=f"Przeanalizuj poniższy kod i wygeneruj zadanie programistyczne:\n\n```\n{code}\n```"
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     import os
 
     # Try to read code from resources/code.txt or from command-line argument
-    code_path = os.path.join(os.path.dirname(__file__), os.pardir, "resources", "code.txt")
+    code_path = os.path.join(os.path.dirname(__file__), os.pardir, "generator/resources", "code.txt")
 
     if len(sys.argv) > 1:
         code = sys.argv[1]
