@@ -1,4 +1,4 @@
-import { TextField, Typography, Slider, Box, Stack, Button, List, ListItem, ListItemText, IconButton } from '@mui/material';
+import { TextField, Typography, Slider, Box, Stack, Button, List, ListItem, ListItemText, IconButton, CircularProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
 import { useState, useRef } from 'react';
@@ -13,6 +13,7 @@ function Parameters() {
     const parameters = useSelector(state => getParameters(state));
 
     const [files, setFiles] = useState([]);
+    const [loading, setLoading] = useState(false);
     const attachedFileNames = files.map(file => file.name);
     const fileInputRef = useRef(null);
 
@@ -32,6 +33,7 @@ function Parameters() {
     // Funkcja obsługująca wysyłanie danych do backendu - tworzy formData, dodaje parametry i pliki, a następnie wysyła POST request.
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);  // ← TUTAJ - loading ustawiany na true, by pokazać spinner i zablokować przycisk podczas wysyłania danych
 
         try {
             const formData = new FormData();
@@ -50,7 +52,9 @@ function Parameters() {
                 files: attachedFileNames
             });
 
-            let response = await axios.post("http://127.0.0.1:8000/api/kody/", formData, {
+            /* Jeśli chcesz używać json-server jako serwer, to odkomentuj poniższą linijkę i zakomentuj następną. */
+            let response = await axios.get("http://localhost:8000/api/kody/", {
+            //let response = await axios.post("http://127.0.0.1:8000/api/kody/", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -59,6 +63,8 @@ function Parameters() {
             dispatch(updateResults(response.data));
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -142,7 +148,8 @@ function Parameters() {
                 <Button 
                     variant="contained" 
                     size="large"
-                    startIcon={<SendIcon />}
+                    startIcon={loading ? <CircularProgress size={24} color="inherit" /> : <SendIcon />}
+                    disabled={loading}
                     sx={{ 
                         px: 4, 
                         py: 1.5, 
@@ -151,12 +158,13 @@ function Parameters() {
                         fontSize: '1.1rem',
                         borderRadius: 2,
                         bgcolor: '#219653',
-                        '&:hover': { bgcolor: '#1b7a43' },
+                        '&:hover': { bgcolor: loading ? '#219653' : '#1b7a43' },
+                        '&:disabled': { bgcolor: '#A8D5BA', color: 'rgba(255, 255, 255, 0.6)' },
                         boxShadow: 'none'
                     }}
                     onClick={handleSubmit}
                 >
-                    Generuj i publikuj zadanie
+                    {loading ? 'Ładowanie...' : 'Generuj i publikuj zadanie'}
                 </Button>
             </Box>
             

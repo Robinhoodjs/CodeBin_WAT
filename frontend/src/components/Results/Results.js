@@ -6,12 +6,32 @@ function Results() {
     const results = useSelector(getResults);
 
     const handleDownload = (file) => {
+        const getUrl = () => {
+            if (typeof file.content !== 'string') return null;
+            if (file.content.startsWith('data:')) {
+                return file.content;
+            }
+            // Block w postaci tekstu - konwertujemy na Blob
+            const blob = new Blob([file.content], { type: 'text/plain;charset=utf-8' });
+            return URL.createObjectURL(blob);
+        };
+
+        const url = getUrl();
+        if (!url) {
+            console.error('Nieprawidłowa zawartość pliku do pobrania:', file);
+            return;
+        }
+
         const link = document.createElement('a');
-        link.href = file.content;
+        link.href = url;
         link.download = file.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        if (!file.content.startsWith('data:')) {
+            URL.revokeObjectURL(url);
+        }
     };
 
     return (
