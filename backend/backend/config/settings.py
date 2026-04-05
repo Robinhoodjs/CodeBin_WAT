@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken', #<-- odpowiada za tokeny
     'corsheaders',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -148,4 +149,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication', 
     ],
+}
+
+# Konfiguracja dla czytelniejszego wykresu dla Graphvix:
+GRAPH_MODELS = {
+  'all_applications': True,
+  'group_models': True,
 }

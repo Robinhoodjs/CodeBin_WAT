@@ -2,3 +2,5 @@ django>=5.0,<6.0
 psycopg2-binary>=2.9
 djangorestframework==3.15.1
 django-cors-headers==4.3.1
+django-extensions==3.2.3
+pydotplus==2.0.2

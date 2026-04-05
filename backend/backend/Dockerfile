@@ -12,6 +12,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     gcc \
+    graphviz \
     && rm -rf /var/lib/apt/lists/*
 
 # Kopiujemy requirements i instalujemy biblioteki

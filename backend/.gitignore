@@ -1,5 +1,6 @@
-# Ignorowane pliki konfiguracyjne
+# Ignorowane pliki
 .env
+dokumentacja_backend.docx
 
 # Ignorowane foldery bazy danych (jeśli kiedyś utworzysz lokalnie)
 postgres_data/
@@ -7,3 +8,7 @@ postgres_data/
 # Śmieci z Pythona
 __pycache__/
 *.pyc
+
+# ignorowane notatki
+notatki/
+model_bazy/

@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.conf import settings # Potrzebne do powiązania Snippetu z nowym Użytkownikiem
+from django.conf import settings
 
 class Uzytkownik(AbstractUser):
     '''
@@ -34,6 +34,7 @@ class Snippet(models.Model):
         return self.title
 
 class Task(models.Model):
+    # zmienić ID na formułę np. ES12345, ES - {easy, medium,hard} + numer
     DIFFICULTY_CHOICES = [
         ('easy', 'Łatwe'),
         ('medium', 'Średnie'),
@@ -156,33 +157,6 @@ class GroupMembership(models.Model):
 
     def __str__(self):
         return f"{self.user.username} w {self.group.name} ({self.get_role_display()})"
-    
-
-class Contest(models.Model):
-    """
-    Model Konkursu - utworzont przez admina.
-    """
-    title = models.CharField(max_length=200, help_text="Nazwa konkursu")
-    description = models.TextField(blank=True, null=True)
-    
-    # Konkurs jest przypisany do konkretnej grupy
-    group = models.ForeignKey(CodeGroup, on_delete=models.CASCADE, related_name='contests')
-    
-    # Czas trwania konkursu
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    
-    # HU 2.3: Opcja zakazu przeglądania sieci (np. blokada wychodzenia z karty w React)
-    strict_mode = models.BooleanField(default=False, help_text="Włącza restrykcje, np. zakaz kopiowania/opuszczania karty")
-    
-    # Konkurs ma wiele zadań, a zadanie może być w wielu konkursach (Many-to-Many)
-    tasks = models.ManyToManyField(Task, related_name='contests')
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.title} ({self.group.name})"
-
 
 class TaskReport(models.Model):
     """
@@ -202,3 +176,60 @@ class TaskReport(models.Model):
     def __str__(self):
         status = "Rozwiązane" if self.is_resolved else "Otwarte"
         return f"Zgłoszenie do {self.task.title} od {self.reported_by.username} ({status})"
+    
+class Contest(models.Model):
+    title = models.CharField(max_length=200, help_text="Nazwa konkursu")
+    description = models.TextField(blank=True, null=True)
+    
+    # Główny twórca (tylko jeden) - klucz obcy do tabeli Użytkownika
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_contests')
+    
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    strict_mode = models.BooleanField(default=False, help_text="Włącza restrykcje, np. zakaz kopiowania/opuszczania karty")
+    
+    # Relacja do zadań biorących udział w konkursie
+    tasks = models.ManyToManyField(Task, related_name='contests')
+    
+    # Nasze tabele pośrednie z dodatkowymi parametrami
+    participating_groups = models.ManyToManyField(CodeGroup, through='ContestParticipation', related_name='joined_contests')
+    hosts = models.ManyToManyField(settings.AUTH_USER_MODEL, through='ContestHost', related_name='hosted_contests')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class ContestParticipation(models.Model):
+    """
+    Tabela pośrednia 1: Łączy Konkurs z Grupami, które biorą w nim udział.
+    """
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    group = models.ForeignKey(CodeGroup, on_delete=models.CASCADE)
+    
+    joined_at = models.DateTimeField(auto_now_add=True, help_text="Kiedy grupa dołączyła do konkursu?")
+    is_disqualified = models.BooleanField(default=False, help_text="Czy grupa została zdyskwalifikowana?")
+    total_score = models.IntegerField(default=0, help_text="Suma punktów zdobytych przez grupę")
+
+    class Meta:
+        unique_together = ('contest', 'group')
+
+    def __str__(self):
+        return f"{self.group.name} w {self.contest.title}"
+
+class ContestHost(models.Model):
+    """
+    Tabela pośrednia 2: Łączy Konkurs z Użytkownikami (Adminami), którzy mogą nim zarządzać.
+    """
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    
+    added_at = models.DateTimeField(auto_now_add=True)
+    can_edit_tasks = models.BooleanField(default=False, help_text="Czy może dodawać/usuwać zadania z konkursu?")
+    can_kick_groups = models.BooleanField(default=False, help_text="Czy może dyskwalifikować grupy?")
+
+    class Meta:
+        unique_together = ('contest', 'user')
+
+    def __str__(self):
+        return f"Host {self.user.username} w {self.contest.title}"
