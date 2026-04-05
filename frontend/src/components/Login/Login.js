@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Container, Box, Typography, TextField, Button, Paper, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import styles from './Login.module.scss'; 
 
 function Login() {
     const navigate = useNavigate();
     
-    // stan formularza
     const [formData, setFormData] = useState({
         username: '',
         password: '',
@@ -22,15 +22,21 @@ function Login() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        const toastId = toast.loading('Logowanie...');
 
         try {
-            const response = await axios.post("http://127.0.0.1:8000/api/logowanie/", formData); // Tutaj można po prostu wysłać formData, bez modyfikacji.
-            console.log(response);
+            await axios.post("http://127.0.0.1:8000/api/logowanie/", formData);
+            
+            // Zapisujemy sesję
+            localStorage.setItem('isAuthenticated', 'true');
+            toast.success('Pomyślnie zalogowano!', { id: toastId });
+            
+            // Przeładowanie, żeby odświeżyć stan w App.js
+            window.location.href = '/generator'; 
+            
         } catch (error) {
-            console.error(error);
+            toast.error('Błędny login lub hasło!', { id: toastId });
         }
-
-        navigate('/generator'); 
     };
 
     return (

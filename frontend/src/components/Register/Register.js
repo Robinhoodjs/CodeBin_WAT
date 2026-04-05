@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Container, Box, Typography, TextField, Button, Paper, Link, Chip, Alert, IconButton, InputAdornment } from '@mui/material';
+import { Container, Box, Typography, TextField, Button, Paper, Link, Chip, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import styles from './Register.module.scss'; 
 
 function Register() {
@@ -20,8 +21,6 @@ function Register() {
         indexNumber: ''
     });
 
-    const [error, setError] = useState('');
-    
     // stany do pokazywania/ukrywania hasla
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -47,18 +46,16 @@ function Register() {
         
         // blokada wyslania jesli haslo jest za slabe
         if (!isLengthValid || !hasSpecialChar) {
-            setError('Hasło nie spełnia wymagań bezpieczeństwa.');
+            toast.error('Hasło nie spełnia wymagań bezpieczeństwa.');
             return;
         }
 
         if (formData.password !== formData.confirmPassword) {
-            setError('Podane hasła nie są identyczne.');
+            toast.error('Podane hasła nie są identyczne.');
             return;
         }
 
-        setError(''); 
-        
-        // Zmiana 1: Zmiana nazw ról - aby pasowało do wymagań bazy danych
+        // Zmiana nazw ról - aby pasowało do wymagań bazy danych
         let userRole = 'unknown';
         if (isStudent) {
             userRole = 'student';
@@ -77,29 +74,25 @@ function Register() {
             numer_indeksu: formData.indexNumber
         };
 
-        // Zmiana 2: Poprawna obsługa sukcesu i błędu
+        const toastId = toast.loading('Rejestracja w toku...');
+
+        // Poprawna obsługa sukcesu i błędu
         try {
             const response = await axios.post("http://127.0.0.1:8000/api/rejestracja/", payload);
-            console.log('Rejestracja udana:', response.data);
             
-            // Przekierowujemy do logowania TYLKO, gdy backend zwróci sukces (status 200/201)
+            // Przekierowujemy do logowania TYLKO, gdy backend zwróci sukces
+            toast.success(response.data.wiadomosc || 'Rejestracja zakończona sukcesem!', { id: toastId });
             navigate('/login'); 
             
         } catch (error) {
-            console.error('Błąd rejestracji:', error);
-            
-            // Wyciągamy dokładny błąd, który zwróciło Twoje Django
+            // Wyciągamy dokładny błąd, który zwróciło Django
             if (error.response && error.response.data) {
-                // Przerabiamy obiekt błędu (np. {"username": ["Użytkownik już istnieje"]}) na tekst
                 const errorMessages = Object.values(error.response.data).flat().join(' | ');
-                setError(`Odmowa serwera: ${errorMessages}`);
+                toast.error(`Odmowa serwera: ${errorMessages}`, { id: toastId });
             } else {
-                setError('Brak odpowiedzi z serwera. Sprawdź, czy backend działa.');
+                toast.error('Brak odpowiedzi z serwera. Sprawdź, czy backend działa.', { id: toastId });
             }
         }
-
-        console.log('Dane rejestracji:', payload);
-        navigate('/login'); 
     };
 
     return (
@@ -114,12 +107,6 @@ function Register() {
                         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
                             Utwórz nowe konto w systemie CodeBin
                         </Typography>
-
-                        {error && (
-                            <Alert severity="error" sx={{ mb: 3 }}>
-                                {error}
-                            </Alert>
-                        )}
 
                         <Box component="form" onSubmit={handleRegister} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                             
@@ -151,7 +138,6 @@ function Register() {
                                     <TextField name="deansGroup" label="Grupa dziekańska" value={formData.deansGroup} onChange={handleChange} fullWidth required={isStudent} />
                                 </Box>
                             )}
-
                             
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, textAlign: 'left' }}>
                                 <TextField 
