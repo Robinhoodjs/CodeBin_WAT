@@ -1,0 +1,22 @@
+Authorization Token [token]
+
+{
+  "title": "Kalkulator BMI versja 2",
+  "code": "def oblicz_bmi(waga, wzrost):\n    bmi = waga / (wzrost ** 2)\n    return round(bmi, 2)\n\nprint(f'Twoje BMI to: {oblicz_bmi(75, 1.80)}')",
+  "language": "python"
+}
+
+{
+  "username": "jankowalski",
+  "password": "JegoTrudneHaslo123!"
+}
+
+{
+    "username": "kamila_jelen",
+    "email": "kamila_jel@student.wat.edu.pl",
+    "first_name": "Kamila",
+    "last_name": "Jelen",
+    "rola": "student",
+    "grupa_dziekanska": "WEL23LO2S1",
+    "numer_indeksu": "12344"
+}

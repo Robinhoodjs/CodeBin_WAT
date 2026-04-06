@@ -1,8 +1,0 @@
-<?xml version = '1.0' encoding = 'UTF-8'?>
-<OSDM_Design class="oracle.dbtools.crest.model.design.Design" name="model_logiczny" id="8DAE97BF-D8D6-95DB-5512-76471EB8D325" version="3.5">
-<createdBy>igorf</createdBy>
-<createdTime>2026-04-02 11:15:24 UTC</createdTime>
-<ownerDesignName>model_logiczny</ownerDesignName>
-<capitalNames>false</capitalNames>
-<designId>8DAE97BF-D8D6-95DB-5512-76471EB8D325</designId>
-</OSDM_Design>

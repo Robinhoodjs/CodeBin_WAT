@@ -1,0 +1,12 @@
+active directory do logowania użytkownikow - pref
+lub logowanie poprzez OAuth
+
+tryb ciemny jasny zapisywany w cachu przeglądarki
+
+MoSCoW
+
+LLama
+
+
+
+
