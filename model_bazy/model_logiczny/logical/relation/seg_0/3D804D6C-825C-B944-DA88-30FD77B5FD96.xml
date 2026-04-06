@@ -1,0 +1,20 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Relation class="oracle.dbtools.crest.model.design.logical.Relation" name="zadanie_i_jego_autor" directorySegmentName="seg_0" id="3D804D6C-825C-B944-DA88-30FD77B5FD96">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:32:14 UTC</createdTime>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<engineerTo>
+<item key="7E22BAE6-2ACF-0B57-BFBD-C9716756F806" value="true"/>
+</engineerTo>
+<sourcePk>CF345E48-1187-A6FD-EF60-D26A32A47228</sourcePk>
+<targetPk>31705CF0-E4DE-EF19-4320-AA79BB9EF012</targetPk>
+<identifying>false</identifying>
+<optionalSource>true</optionalSource>
+<optionalTarget>false</optionalTarget>
+<sourceCardinality>1</sourceCardinality>
+<sourceEntity>213FB189-4C81-0941-8FE8-C527B86FB5F8</sourceEntity>
+<targetCardinalityString>*</targetCardinalityString>
+<targetEntity>AF77E2A4-9399-8F48-DC85-DA53D1C11F8B</targetEntity>
+<transferable>true</transferable>
+<deleteRule>NO ACTION</deleteRule>
+</Relation>

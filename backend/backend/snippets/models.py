@@ -189,8 +189,8 @@ class Contest(models.Model):
     strict_mode = models.BooleanField(default=False, help_text="Włącza restrykcje, np. zakaz kopiowania/opuszczania karty")
     
     # Relacja do zadań biorących udział w konkursie
-    tasks = models.ManyToManyField(Task, through='ContestTask', related_name='contests')    
-
+    tasks = models.ManyToManyField(Task, related_name='contests')
+    
     # Nasze tabele pośrednie z dodatkowymi parametrami
     participating_groups = models.ManyToManyField(CodeGroup, through='ContestParticipation', related_name='joined_contests')
     hosts = models.ManyToManyField(settings.AUTH_USER_MODEL, through='ContestHost', related_name='hosted_contests')
@@ -233,22 +233,3 @@ class ContestHost(models.Model):
 
     def __str__(self):
         return f"Host {self.user.username} w {self.contest.title}"
-    
-class ContestTask(models.Model):
-    """
-    Tabela pośrednia łącząca Konkurs z Zadaniem.
-    Pozwala m.in. ustalić kolejność zadań i ich punktację w ramach konkretnego turnieju.
-    """
-    contest = models.ForeignKey('Contest', on_delete=models.CASCADE)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    
-    # Dodatkowe, niezwykle przydatne pola dla turniejów:
-    order = models.PositiveIntegerField(default=0, help_text="Kolejność zadania w konkursie (np. 1, 2, 3...)")
-    custom_points = models.IntegerField(default=10, help_text="Liczba punktów za zadanie w TYM konkretnym konkursie")
-
-    class Meta:
-        unique_together = ('contest', 'task')
-        ordering = ['order'] # Django automatycznie posortuje zadania po tym polu
-
-    def __str__(self):
-        return f"Zadanie '{self.task.title}' w konkursie '{self.contest.title}'"

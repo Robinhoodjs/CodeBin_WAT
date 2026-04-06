@@ -1,0 +1,14 @@
+// Barwy Wojskowej Akademii Technicznej
+$wat-white: #ffffff;
+$wat-green: #219653; // Główny kolor akademicki
+$wat-red: #d32f2f;   // Akcent czerwony (jak w obramowaniu herbu)
+$wat-dark-gray: #333333;
+
+// Mapowanie kolorów na zmienne systemowe
+$primary-color-main: $wat-green;
+$primary-color-light: #27ae60;
+$primary-color-dark: #1b7a43;
+$primary-color-contrast-text: $wat-white;
+
+$secondary-color-main: $wat-red;
+$secondary-color-contrast-text: $wat-dark-gray;
