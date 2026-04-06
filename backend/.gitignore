@@ -1,6 +1,5 @@
 # Ignorowane pliki
 .env
-dokumentacja_backend.docx
 
 # Ignorowane foldery bazy danych (jeśli kiedyś utworzysz lokalnie)
 postgres_data/
@@ -12,3 +11,5 @@ __pycache__/
 # ignorowane notatki
 notatki/
 model_bazy/
+node_modules/
+frontend/
