@@ -10,7 +10,6 @@ __pycache__/
 
 # ignorowane notatki
 notatki/
-model_bazy/N
+model_bazy/
 node_modules/
-dokumentacja_backend/
 frontend/
