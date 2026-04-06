@@ -1,0 +1,142 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="213FB189-4C81-0941-8FE8-C527B86FB5F8" name="Uzytkownik">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:19:55 UTC</createdTime>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<engineerTo>
+<item key="7E22BAE6-2ACF-0B57-BFBD-C9716756F806" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="id" id="98EA85F9-4D24-341C-7D39-71CAE049BB30">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:20:01 UTC</createdTime>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<engineerTo>
+<item key="7E22BAE6-2ACF-0B57-BFBD-C9716756F806" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="password" id="84522FD8-E3B7-11A4-C843-845E59AEB329">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:20:16 UTC</createdTime>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<engineerTo>
+<item key="7E22BAE6-2ACF-0B57-BFBD-C9716756F806" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50 CHAR</dataTypeSize>
+<ownDataTypeParameters>50 CHAR,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="first_name" id="5D942C87-9B48-2B56-BB3A-238826C4EB4D">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:20:48 UTC</createdTime>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<engineerTo>
+<item key="7E22BAE6-2ACF-0B57-BFBD-C9716756F806" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>20 CHAR</dataTypeSize>
+<ownDataTypeParameters>20 CHAR,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="last_name" id="D40779D9-C1A6-AA32-30FD-98057058017F">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:22:50 UTC</createdTime>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<engineerTo>
+<item key="7E22BAE6-2ACF-0B57-BFBD-C9716756F806" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50 CHAR</dataTypeSize>
+<ownDataTypeParameters>50 CHAR,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="email" id="745D9ED2-C742-18CD-3070-F16948647BEA">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:23:11 UTC</createdTime>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<engineerTo>
+<item key="7E22BAE6-2ACF-0B57-BFBD-C9716756F806" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>40 CHAR</dataTypeSize>
+<ownDataTypeParameters>40 CHAR,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="rola" id="0FC88281-6EE2-32BA-A245-BD10D52FEC60">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:23:31 UTC</createdTime>
+<commentInRDBMS><![CDATA[ROLES = [
+        ('student', 'Student'),
+        ('profesor', 'Profesor'),
+    ]]]></commentInRDBMS>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<engineerTo>
+<item key="7E22BAE6-2ACF-0B57-BFBD-C9716756F806" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>10 CHAR</dataTypeSize>
+<ownDataTypeParameters>10 CHAR,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="numer_indeksu" id="5F9D259B-05A1-B741-403D-0F2F88FA8E22">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:24:12 UTC</createdTime>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<engineerTo>
+<item key="7E22BAE6-2ACF-0B57-BFBD-C9716756F806" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>5</dataTypePrecision>
+<ownDataTypeParameters>,5,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="grupa_dziekanska" id="65CC76EC-C9C1-88BB-7DCE-F7B04CE1F09F">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:24:31 UTC</createdTime>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<engineerTo>
+<item key="7E22BAE6-2ACF-0B57-BFBD-C9716756F806" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>10 CHAR</dataTypeSize>
+<ownDataTypeParameters>10 CHAR,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="CF345E48-1187-A6FD-EF60-D26A32A47228" name="Uzytkownik PK">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:20:03 UTC</createdTime>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<engineerTo>
+<item key="7E22BAE6-2ACF-0B57-BFBD-C9716756F806" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>98EA85F9-4D24-341C-7D39-71CAE049BB30</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

@@ -1,0 +1,19 @@
+.footer {
+    padding: 15px 0;
+    background-color: #ffffff;
+    border-top: 1px solid #f0f0f0;
+    margin-top: auto;
+    width: 100%;
+    display: flex;
+    justify-content: center; // Poziome wyśrodkowanie
+    align-items: center;
+
+    p {
+        font-size: 0.7rem;
+        color: #aaaaaa;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0;
+        text-align: center;
+    }
+}

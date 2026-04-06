@@ -1,0 +1,7 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<ProcessModel class="oracle.dbtools.crest.model.design.process.ProcessModel" name="Process Model" id="94118787-FB3C-4840-9E2A-D2D96CB3057E">
+<createdBy>igorf</createdBy>
+<createdTime>2026-04-02 11:15:24 UTC</createdTime>
+<ownerDesignName>model_logiczny</ownerDesignName>
+<shouldBeOpen>false</shouldBeOpen>
+</ProcessModel>
