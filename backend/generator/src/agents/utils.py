@@ -2,7 +2,7 @@ import getpass
 import os
 from typing import Literal
 
-from langchain_core.messages import BaseMessage
+from langchain_core.messages import BaseMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 
 from langgraph.graph import END, MessagesState
@@ -16,6 +16,8 @@ analysis_llm = ChatOpenAI(
     base_url=ENDPOINT,
     api_key=API_KEY,
     temperature=0.0,
+    max_tokens=2048
+
 )
 
 
@@ -24,6 +26,7 @@ story_teller_llm = ChatOpenAI(
     base_url=ENDPOINT,
     api_key=API_KEY,
     temperature=0.7,
+    max_tokens=2048
 )
 
 output_llm = ChatOpenAI(
@@ -31,6 +34,7 @@ output_llm = ChatOpenAI(
     base_url=ENDPOINT,
     api_key=API_KEY,
     temperature=0.3,
+    max_tokens=2048
 )
 
 def _set_if_undefined(var: str):
@@ -82,19 +86,42 @@ def should_continue(state: MessagesState) -> Literal["tool_node", "__end__"]:
     """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""
     messages = state["messages"]
     last_message = messages[-1]
-    if last_message.tool_calls:
+    if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
         return "tool_node"
     return END
 
 
 def make_system_prompt(suffix: str) -> str:
     return (
-        "You are a helpful AI assistant, collaborating with other assistants."
-        " Use the provided tools to progress towards answering the question."
-        " If you are unable to fully answer, that's OK, another assistant with different tools "
-        " will help where you left off. Execute what you can to make progress."
-        " If you or any of the other assistants have the final answer or deliverable,"
-        " prefix your response with FINAL ANSWER so the team knows to stop."
+        "Jesteś asystentem AI współpracującym z innymi asystentami."
+        " Wykonaj swoje zadanie najlepiej jak potrafisz."
+        " Gdy skończysz, poprzedź odpowiedź słowami FINAL ANSWER."
         f"\n{suffix}"
     )
 
+
+
+def compact_messages(messages, max_last_chars=1500):
+    """Aggressively compact message history to prevent context overflow.
+
+    Only keeps the LAST message (truncated if needed).
+    Each agent only needs the previous stage's output to do its work.
+
+    Args:
+        messages: Full list of messages from the pipeline state.
+        max_last_chars: Max characters to keep from the last message.
+
+    Returns:
+        List with at most 1 message.
+    """
+    if not messages:
+        return []
+
+    last = messages[-1]
+    content = getattr(last, 'content', '') or ''
+
+    # Truncate if too long
+    if len(content) > max_last_chars:
+        content = content[:max_last_chars] + "\n…[skrócono]"
+
+    return [HumanMessage(content=content, name=getattr(last, 'name', None))]

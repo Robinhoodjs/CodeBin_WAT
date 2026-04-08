@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
-from langgraph.graph import StateGraph, START
-
+from langgraph.graph import StateGraph, START, END
 load_dotenv()
+from src import should_continue
 
-from backend.generator.src.agents import (
+from src.agents import (
     AgentState,
     input_reader,
     scenario_creator,
@@ -36,16 +36,16 @@ workflow.add_node("text_corrector", text_corrector)
 # START → input_reader → scenario_creator
 workflow.add_edge(START, "input_reader")
 workflow.add_edge("input_reader", "scenario_creator")
-# workflow.add_edge("scenario_creator", "story_teller")
-# workflow.add_edge("story_teller", "names_creator")
-# workflow.add_edge("names_creator", "task_describer")
-# workflow.add_edge("task_describer", "output_describer")
-# workflow.add_edge("output_describer", "text_checker")
-# workflow.add_conditional_edges(
-#     "text_checker",
-#     should_continue,
-#     ["text_corrector", END],
-# )
+workflow.add_edge("scenario_creator", "story_teller")
+workflow.add_edge("story_teller", "names_creator")
+workflow.add_edge("names_creator", "task_describer")
+workflow.add_edge("task_describer", "output_describer")
+workflow.add_edge("output_describer", "text_checker")
+workflow.add_conditional_edges(
+    "text_checker",
+    should_continue,
+    ["text_corrector", END],
+)
 
 graph = workflow.compile()
 

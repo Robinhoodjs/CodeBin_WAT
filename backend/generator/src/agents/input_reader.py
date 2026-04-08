@@ -5,7 +5,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph import MessagesState
 from langgraph.types import Command
 
-from .utils import make_system_prompt, analysis_llm
+from .utils import make_system_prompt, analysis_llm, compact_messages
 
 INPUT_READER_PROMPT = (
     "Jesteś ekspertem od analizy kodu źródłowego.\n"
@@ -33,16 +33,17 @@ def input_reader(state: MessagesState) -> Command[Literal["scenario_creator"]]:
         system_prompt=make_system_prompt(INPUT_READER_PROMPT),
     )
 
-    result = agent.invoke(state)
+    compact_state = {**state, "messages": compact_messages(state["messages"])}
+    result = agent.invoke(compact_state)
 
-    result["messages"][-1] = HumanMessage(
+    output_msg = HumanMessage(
         content=result["messages"][-1].content,
         name="input_reader",
     )
 
     return Command(
         update={
-            "messages": result["messages"],
+            "messages": [output_msg],
             "current_stage": "input_reader",
             "next_stage": "scenario_creator",
         },

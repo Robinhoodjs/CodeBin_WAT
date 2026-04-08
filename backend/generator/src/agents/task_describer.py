@@ -6,7 +6,7 @@ from langgraph.graph import MessagesState
 from langgraph.types import Command
 
 from .utils import (
-    output_llm, make_system_prompt,
+    output_llm, make_system_prompt, compact_messages,
 )
 
 TASK_DESCRIBER_PROMPT = (
@@ -31,16 +31,17 @@ def task_describer(state: MessagesState) -> Command[Literal["text_checker"]]:
         system_prompt=make_system_prompt(TASK_DESCRIBER_PROMPT),
     )
 
-    result = agent.invoke(state)
+    compact_state = {**state, "messages": compact_messages(state["messages"])}
+    result = agent.invoke(compact_state)
 
-    result["messages"][-1] = HumanMessage(
+    output_msg = HumanMessage(
         content=result["messages"][-1].content,
         name="task_describer",
     )
 
     return Command(
         update={
-            "messages": result["messages"],
+            "messages": [output_msg],
             "current_stage": "task_describer",
             "next_stage": "output_describer",
         },

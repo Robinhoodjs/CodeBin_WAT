@@ -7,7 +7,7 @@ from langgraph.types import Command
 
 from .utils import (
     make_system_prompt,
-    AgentState, analysis_llm, output_llm,
+    AgentState, analysis_llm, output_llm, compact_messages,
 )
 
 
@@ -45,7 +45,8 @@ def text_checker(state: AgentState) -> Command[Literal["text_corrector", "__end_
         system_prompt=make_system_prompt(TEXT_CHECKER_PROMPT),
     )
 
-    result = agent.invoke(state)
+    compact_state = {**state, "messages": compact_messages(state["messages"])}
+    result = agent.invoke(compact_state)
     last_message = result["messages"][-1]
 
     # Determine routing: FINAL ANSWER → next pipeline stage, otherwise → corrector
@@ -55,14 +56,14 @@ def text_checker(state: AgentState) -> Command[Literal["text_corrector", "__end_
     else:
         goto = "text_corrector"
 
-    result["messages"][-1] = HumanMessage(
+    output_msg = HumanMessage(
         content=last_message.content,
         name="text_checker",
     )
 
     return Command(
         update={
-            "messages": result["messages"],
+            "messages": [output_msg],
         },
         goto=goto,
     )
@@ -92,16 +93,17 @@ def text_corrector(state: AgentState) -> Command[Literal["text_checker"]]:
         system_prompt=make_system_prompt(TEXT_CORRECTOR_PROMPT),
     )
 
-    result = agent.invoke(state)
+    compact_state = {**state, "messages": compact_messages(state["messages"])}
+    result = agent.invoke(compact_state)
 
-    result["messages"][-1] = HumanMessage(
+    output_msg = HumanMessage(
         content=result["messages"][-1].content,
         name="text_corrector",
     )
 
     return Command(
         update={
-            "messages": result["messages"],
+            "messages": [output_msg],
         },
         goto="text_checker",
     )

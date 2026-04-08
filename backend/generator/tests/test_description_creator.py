@@ -60,6 +60,7 @@ def _load_agent_module(filename, mod_name, extra_attrs=None):
     _mod.story_teller_llm = MagicMock()
     _mod.output_llm = MagicMock()
     _mod.make_system_prompt = _utils_mod.make_system_prompt
+    _mod.compact_messages = _utils_mod.compact_messages
     _mod.create_agent = MagicMock()
     _mod.HumanMessage = MagicMock()
     _mod.MessagesState = dict
@@ -107,7 +108,7 @@ class TestScenarioCreator(unittest.TestCase):
         scenario_creator(state)
 
         _sc_mod.create_agent.assert_called_once()
-        mock_agent.invoke.assert_called_once_with(state)
+        mock_agent.invoke.assert_called_once()  # called with compact_state
 
     def test_routes_to_text_checker(self):
         mock_agent = MagicMock()

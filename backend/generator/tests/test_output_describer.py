@@ -65,6 +65,7 @@ _od_mod.MessagesState = dict
 _od_mod.Command = MagicMock()
 _od_mod.END = "__end__"
 _od_mod.Literal = None
+_od_mod.compact_messages = _utils_mod.compact_messages
 
 exec(compile(_od_source, _od_path, "exec"), _od_mod.__dict__)
 
@@ -96,7 +97,7 @@ class TestOutputDescriber(unittest.TestCase):
         output_describer(state)
 
         _od_mod.create_agent.assert_called_once()
-        mock_agent.invoke.assert_called_once_with(state)
+        mock_agent.invoke.assert_called_once()  # called with compact_state
 
     def test_routes_to_text_checker(self):
         """output_describer should route to text_checker."""

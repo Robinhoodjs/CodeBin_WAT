@@ -149,7 +149,7 @@ class TestMakeSystemPrompt(unittest.TestCase):
 
     def test_contains_base_prompt(self):
         result = make_system_prompt("")
-        self.assertIn("You are a helpful AI assistant", result)
+        self.assertIn("asystentem AI", result)
         self.assertIn("FINAL ANSWER", result)
 
     def test_suffix_appended(self):

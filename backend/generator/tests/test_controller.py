@@ -70,6 +70,7 @@ _ctrl_mod.Command = MagicMock()
 _ctrl_mod.Literal = None
 _ctrl_mod.END = "__end__"
 _ctrl_mod.AgentState = _utils_mod.AgentState
+_ctrl_mod.compact_messages = _utils_mod.compact_messages
 
 exec(compile(_ctrl_source, _ctrl_path, "exec"), _ctrl_mod.__dict__)
 
@@ -96,7 +97,7 @@ class TestTextChecker(unittest.TestCase):
         text_checker(state)
 
         _ctrl_mod.create_agent.assert_called_once()
-        mock_agent.invoke.assert_called_once_with(state)
+        mock_agent.invoke.assert_called_once()  # called with compact_state
 
     def test_routes_to_text_corrector_when_errors(self):
         """text_checker should route to text_corrector when no FINAL ANSWER."""
@@ -151,7 +152,7 @@ class TestTextCorrector(unittest.TestCase):
         text_corrector(state)
 
         _ctrl_mod.create_agent.assert_called_once()
-        mock_agent.invoke.assert_called_once_with(state)
+        mock_agent.invoke.assert_called_once()  # called with compact_state
 
     def test_routes_to_text_checker(self):
         """text_corrector should always route back to text_checker."""

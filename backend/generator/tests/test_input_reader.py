@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, ANY
 import sys
 import os
 import re
@@ -64,6 +64,7 @@ _ir_mod.HumanMessage = MagicMock()
 _ir_mod.MessagesState = dict
 _ir_mod.Command = MagicMock()
 _ir_mod.Literal = None
+_ir_mod.compact_messages = _utils_mod.compact_messages
 
 exec(compile(_ir_source, _ir_path, "exec"), _ir_mod.__dict__)
 
@@ -95,7 +96,7 @@ class TestInputReader(unittest.TestCase):
         input_reader(state)
 
         _ir_mod.create_agent.assert_called_once()
-        mock_agent.invoke.assert_called_once_with(state)
+        mock_agent.invoke.assert_called_once()  # called with compact_state
 
     def test_returns_command_to_scenario_creator(self):
         """input_reader should route to scenario_creator."""

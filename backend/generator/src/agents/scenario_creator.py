@@ -5,7 +5,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph import MessagesState
 from langgraph.types import Command
 
-from .utils import output_llm, make_system_prompt
+from .utils import output_llm, make_system_prompt, compact_messages
 
 SCENARIO_CREATOR_PROMPT = (
     "Jesteś kreatywnym pisarzem scenariuszy edukacyjnych.\n"
@@ -28,16 +28,17 @@ def scenario_creator(state: MessagesState) -> Command[Literal["text_checker"]]:
         system_prompt=make_system_prompt(SCENARIO_CREATOR_PROMPT),
     )
 
-    result = agent.invoke(state)
+    compact_state = {**state, "messages": compact_messages(state["messages"])}
+    result = agent.invoke(compact_state)
 
-    result["messages"][-1] = HumanMessage(
+    output_msg = HumanMessage(
         content=result["messages"][-1].content,
         name="scenario_creator",
     )
 
     return Command(
         update={
-            "messages": result["messages"],
+            "messages": [output_msg],
             "current_stage": "scenario_creator",
             "next_stage": "story_teller",
         },

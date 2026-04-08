@@ -5,7 +5,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph import MessagesState, END
 from langgraph.types import Command
 
-from .utils import make_system_prompt, output_llm
+from .utils import make_system_prompt, output_llm, compact_messages
 
 
 OUTPUT_DESCRIBER_PROMPT = (
@@ -35,16 +35,17 @@ def output_describer(state: MessagesState) -> Command[Literal["text_checker"]]:
         system_prompt=make_system_prompt(OUTPUT_DESCRIBER_PROMPT),
     )
 
-    result = agent.invoke(state)
+    compact_state = {**state, "messages": compact_messages(state["messages"])}
+    result = agent.invoke(compact_state)
 
-    result["messages"][-1] = HumanMessage(
+    output_msg = HumanMessage(
         content=result["messages"][-1].content,
         name="output_describer",
     )
 
     return Command(
         update={
-            "messages": result["messages"],
+            "messages": [output_msg],
             "current_stage": "output_describer",
             "next_stage": END,
         },
